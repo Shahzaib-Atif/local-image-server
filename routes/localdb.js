@@ -3,7 +3,7 @@ import sql from 'mssql'
 import { middleware } from '../middleware.js';
 const router = Router()
 
-// router.use(middleware)
+router.use(middleware)
 
 // GET api to serve images
 router.get('/data', async (req, res) => {
@@ -30,8 +30,7 @@ async function runQuery() {
         const result = await pool.request()
             .query('SELECT * FROM [ImageFeaturesDB].[dbo].[Cores]')
 
-        console.log('.................');
-        console.log('result: ', result)
+        console.log('rowsAffected: ', result.rowsAffected)
         return result.recordset
     } catch (err) {
         console.error('MSSQL Error:', err)
