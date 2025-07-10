@@ -1,14 +1,17 @@
-import { Router } from 'express';
-import sql from 'mssql'
-import { middleware } from '../middleware.js';
-const router = Router()
+import { Router } from "express";
+import sql from "mssql";
+import { middleware } from "../middleware.js";
+const router = Router();
 
-router.use(middleware)
+router.use(middleware);
 
 // GET api to serve images
-router.get('/data', async (req, res) => {
+router.get("/data/:entidade", async (req, res) => {
     console.log(`Get Request for data route`);
-    const recordset = await runQuery();
+    const entidade = req.params.entidade;
+    console.log(entidade);
+
+    const recordset = await runQuery(entidade);
 
     res.status(200).json(recordset);
 });
@@ -22,20 +25,27 @@ const config = {
         encrypt: false,
         trustServerCertificate: true,
     },
-}
+};
 
-async function runQuery() {
+async function runQuery(entidade) {
     try {
-        const pool = await sql.connect(config)
-        const result = await pool.request()
-            .query('SELECT * FROM [ImageFeaturesDB].[dbo].[Cores]')
+        const pool = await sql.connect(config);
+        const result = await pool
+            .request()
+            .query(
+                `SELECT top(1) CaminhoPastaSP  FROM [ImageFeaturesDB].[dbo].[ClientesFolderSharePoint] where Entidade='${entidade}'`
+            );
 
-        console.log('rowsAffected: ', result.rowsAffected)
-        return result.recordset
+        const { rowsAffected, recordset } = result;
+        if (rowsAffected[0] > 0) {
+            return recordset[0]?.CaminhoPastaSP; // Return first (and only) record
+        } else {
+            return null;
+        }
     } catch (err) {
-        console.error('MSSQL Error:', err)
+        console.error("MSSQL Error:", err);
     } finally {
-        await sql.close()
+        await sql.close();
     }
 }
 
