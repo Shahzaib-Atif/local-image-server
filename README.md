@@ -19,5 +19,6 @@ This is a basic Express.js server that exposes two main routes:
 
 ### Tunneling with cloudflared
 
-- npx cloudflared tunnel --url http://localhost:3010
-
+```bash
+npx cloudflared tunnel --url http://localhost:3010
+```
